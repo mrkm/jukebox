@@ -1,0 +1,18 @@
+#!/usr/bin/python
+import sys, os
+#import commands
+import random
+
+
+album_path = sys.argv[1] 
+print album_path
+
+files = os.listdir(album_path)
+#random.shuffle(files)
+print files
+for file in files:
+    file_path = os.path.join(album_path, file)
+    print 'now playing [31m%s[m' % file
+    os.system('echo "afplay - now playing %s" | growlnotify' % file)
+    os.system('afplay "%s"' % file_path)
+
