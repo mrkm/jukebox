@@ -13,9 +13,9 @@ import signal, os
 # signal.alarm(5)
 
 # This open() may hang indefinitely
-fd = os.open('/dev/ttyS0', os.O_RDWR)  
+# fd = os.open('/dev/ttyS0', os.O_RDWR)  
 
-signal.alarm(0)          # Disable the alarm
+# signal.alarm(0)          # Disable the alarm
 
 #import random
 
@@ -177,6 +177,7 @@ def __main__():
             artist = juke.artists[options.artist]
             album = artist.albums[options.disc]
             numbers = album.numbers.values()
+            numbers.sort(key=lambda number:number.name)
             if not options.quiet:
                 print artist
                 print '[31m%s[m' % album
@@ -191,7 +192,7 @@ def __main__():
     else:
         parser.print_help()
 
-#__main__()
+__main__()
 
 
 
