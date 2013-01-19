@@ -1,4 +1,4 @@
-export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$HOME/git/jukebox/scripts
+export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/git/jukebox/scripts
 # jukebox
 export JUKEBOX_HOME=$HOME/git/jukebox
 export PATH=$PATH:$JUKEBOX_HOME/scripts:$JUKEBOX_HOME/scripts/private
