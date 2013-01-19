@@ -1,9 +1,34 @@
-export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:/usr/X11/bin:/Developer/usr/bin:/Users/murakami/jukebox/scripts:/Users/murakami/jukebox/scripts/private
+export PATH=/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$HOME/git/jukebox/scripts
+# jukebox
+export JUKEBOX_HOME=$HOME/git/jukebox
+export PATH=$PATH:$JUKEBOX_HOME/scripts:$JUKEBOX_HOME/scripts/private
+
+# python virtualenv
+if [ -f /usr/bin/virtualenvwrapper.sh ]; then
+    source /usr/bin/virtualenvwrapper.sh
+fi
+export WORKON_HOME=$HOME/virtualenv
+export PIP_RESPECT_VIRTUALENV=true
+export LD_LIBRARY_PATH=/usr/local/lib
+
+# ruby
 # export RUBYLIB=/Users/murakami/jukebox/lib
 # export GEM_PATH=/opt/local/lib/ruby/gems/
 # export GEM_HOME=/opt/local/lib/ruby/gems/
+# For RVM
+#[[ -s "/Users/murakami/.rvm/scripts/rvm" ]] && source "/Users/murakami/.rvm/scripts/rvm"
 
-#color
+# history
+HISTFILE=~/.zsh_history
+HISTSIZE=6000000
+SAVEHIST=6000000
+autoload history-search-end
+zle -N history-beginning-search-backward-end history-search-end
+autoload -U compinit
+compinit
+export LANG=ja_JP.UTF-8
+
+# color
 local gray=$'%{\e[0;30m%}'
 local red=$'%{\e[0;31m%}'          # 赤色
 local green=$'%{\e[0;32m%}'        # 緑色
@@ -22,17 +47,7 @@ local LIGHT_BLUE=$'%{\e[1;36m%}'   # 水色
 local WHITE=$'%{\e[1;37m%}'        # 白色
 local DEFAULT=$white               # 標準の色
 
-# For RVM
-#[[ -s "/Users/murakami/.rvm/scripts/rvm" ]] && source "/Users/murakami/.rvm/scripts/rvm"
-
-HISTFILE=~/.zsh_history
-HISTSIZE=6000000
-SAVEHIST=6000000
-autoload history-search-end
-zle -N history-beginning-search-backward-end history-search-end
-autoload -U compinit
-compinit
-export LANG=ja_JP.UTF-8
+# prompt
 case ${UID} in
 0)s
     PROMPT="%B%{[31m%}%/#%{[m%}%b "
@@ -50,12 +65,24 @@ case ${UID} in
     ;;
 esac
 case "${TERM}" in
+kterm*|xterm*)
+    export LSCOLORS=exfxcxdxbxegedabagacad
+    export LS_COLORS='di=34:ln=35:so=32:pi=33:ex=31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
+    zstyle ':completion:*' list-colors 'di=34' 'ln=35' 'so=32' 'ex=31' 'bd=46;34' 'cd=43;34'
+    ;;
+cons25)
+    unset LANG
+    export LSCOLORS=ExFxCxdxBxegedabagacad
+    export LS_COLORS='di=01;34:ln=01;35:so=01;32:ex=01;31:bd=46;34:cd=43;34:su=41;30:sg=46;30:tw=42;30:ow=43;30'
+    zstyle ':completion:*' list-colors 'di=;34;1' 'ln=;35;1' 'so=;32;1' 'ex=31;1' 'bd=46;34' 'cd=43;34'
+    ;;
 *)
     precmd() {
         echo -ne "\033]0;${USER}@${HOST%%.*}:${PWD}\007"
     }
     ;;
 esac
+
 setopt hist_ignore_dups     # ignore duplication command history list
 setopt share_history        # share command history data
 bindkey -e
@@ -70,13 +97,6 @@ setopt nolistbeep
 setopt always_last_prompt       # 補完をしてもプロンプトの位置を変えない
 setopt numeric_glob_sort     # ファイル名を数字としてソート 1, 10, 2 -> 1, 2, 10
 
-alias -g H='| head'
-alias -g T='| tail'
-alias -g G='| grep'
-alias -g W='| wc'
-
-alias Chrome='open /Applications/Google\ Chrome.app'
-alias iTunes='open /Applications/iTunes.app'
 alias top='top -s 10 -o rsize -O cpu'
 alias cp='cp -i'
 alias ls='ls -CFG'
@@ -89,3 +109,12 @@ alias du="du -h"
 alias rm='rm -i'
 alias rma='rm [0-z]*~'
 alias rmtex='rm *.aux *.log *.dvi *.idx *.ilg *.ind *.toc *~'
+
+# CentOS
+# ssh-agent
+alias sshadd='eval `ssh-agent -s`; ssh-add'
+# for git cmd with CUI
+unset SSH_ASKPASS
+
+# MacOS
+# export PATH=$PATH:/usr/X11/bin:/Developer/usr/bin
