@@ -4,8 +4,9 @@ export JUKEBOX_HOME=$HOME/git/jukebox
 export PATH=$PATH:$JUKEBOX_HOME/scripts:$JUKEBOX_HOME/scripts/private
 
 # python virtualenv
-if [ -f /usr/bin/virtualenvwrapper.sh ]; then
-    source /usr/bin/virtualenvwrapper.sh
+export VIRTUALENV_HOME=/usr/local/bin
+if [ -f $VIRTUALENV_HOME/virtualenvwrapper.sh ]; then
+    source $VIRTUALENV_HOME/virtualenvwrapper.sh
 fi
 export WORKON_HOME=$HOME/virtualenv
 export PIP_RESPECT_VIRTUALENV=true
