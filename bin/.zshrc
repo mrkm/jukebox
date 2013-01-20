@@ -1,16 +1,19 @@
 export PATH=/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/git/jukebox/scripts
+
 # jukebox
 export JUKEBOX_HOME=$HOME/git/jukebox
 export PATH=$PATH:$JUKEBOX_HOME/scripts:$JUKEBOX_HOME/scripts/private
 
-# python virtualenv
-export VIRTUALENV_HOME=/usr/local/bin
+# python & virtualenv
+#export PYTHONPATH=/usr/local/lib/python2.7/site-packages
+export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python
+export VIRTUALENV_HOME=/usr/bin
 if [ -f $VIRTUALENV_HOME/virtualenvwrapper.sh ]; then
     source $VIRTUALENV_HOME/virtualenvwrapper.sh
 fi
 export WORKON_HOME=$HOME/virtualenv
 export PIP_RESPECT_VIRTUALENV=true
-export LD_LIBRARY_PATH=/usr/local/lib
+# export LD_LIBRARY_PATH=/usr/local/lib
 
 # ruby
 # export RUBYLIB=/Users/murakami/jukebox/lib
