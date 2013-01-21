@@ -1,6 +1,10 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os, sys, commands, optparse
+try:
+    os
+except:
+    import os
+import sys, commands, optparse
 def __main__():
     parser = optparse.OptionParser()
     parser.add_option('-s', '--signal', action='store', dest='signal', default=15, help='signal')
@@ -12,10 +16,11 @@ def __main__():
     res = commands.getoutput(cmd)
     process = {}
     for line in res.split('\n'):
-        if '8000' in line.split()[4]:            
-            cmd = 'sudo kill -%s %s' % (options.signal, line.split()[0])
-            print cmd[5:]
-            os.system(cmd)            
+        for jobname in line.split()[4:]:
+            if '8000' in jobname:
+                cmd = 'sudo kill -%s %s' % (options.signal, line.split()[0])
+                print cmd[5:]
+                os.system(cmd)
 __main__()
 
 
