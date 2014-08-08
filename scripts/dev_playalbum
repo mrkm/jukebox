@@ -1,51 +1,23 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import sys, os#, subprocess
+import sys, os
 import optparse
 import signal, os
 
-# def handler(signum, frame):
-#     print 'Signal handler called with signal', signum
-#     raise IOError, "Couldn't open device!"
-
-# # Set the signal handler and a 5-second alarm
-# signal.signal(signal.SIGALRM, handler)
-# signal.alarm(5)
-
-# This open() may hang indefinitely
-# fd = os.open('/dev/ttyS0', os.O_RDWR)  
-
-# signal.alarm(0)          # Disable the alarm
-
-#import random
-
 os.environ['PATH'] = "/usr/bin"
 MEDIA_ROOT = os.path.join(os.environ['HOME'], 'Music/iTunes/iTunes Media/Music/')
-
-# class Process:
-#     def __init__(self):
-#         self.status = None
-#     def _exec(cmd, stdin=None):
-#         p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
-#         if ( stdin ):
-#             p.stdin.write(stdin)
-#             p.stdin.close()
-#         else:
-#             p.stdin.close()
-#         result = p.stdout.read()        # 結果(stdout)の読み込み
-#         p.stdout.close()
-#         status = p.wait()               # 子プロセスのリターンコードの読み込み（０が正常。それ以外は異常系）        
-#         return result, status
-
+#MEDIA_ROOT = os.path.join(os.environ['HOME'], 'Desktop/music/Music/')
+IGNORE_FILE = ['.DS_Store']
 def _listdir(path):
     result = []
     if os.path.isdir(path):
         result = os.listdir(path)
-        if '.DS_Store' in result:
-            result.remove('.DS_Store')
+        for ignore in IGNORE_FILE:
+            if ignore in result:
+                result.remove(ignore)
     return result
 
-class Number:
+class Number(object):
     def __init__(self, artist, album, number, lib_path=MEDIA_ROOT):
         self.path = os.path.join(lib_path, artist, album, number)
         self.artist = artist
@@ -57,7 +29,7 @@ class Number:
 
     def __unicode__(self):
         return self.name
-    
+
     def __cmp__(self, other):
         try:
             return cmp(int(self.name[:2]), int(other.name[:2]))
@@ -65,21 +37,26 @@ class Number:
             return cmp(self.name, other.name)
 
 
-class Album:
+class Album(object):
     def __init__(self, artist, album, lib_path=MEDIA_ROOT):
         self.path = os.path.join(lib_path, artist, album)
         self.artist = artist
         self.name = album
         self.numbers = {}
         cant_reed = 0
-        for number in _listdir(self.path):            
+        for number_ in _listdir(self.path):
             try:
-                _number = Number(artist, album, number.decode('utf-8', 'replace'))
-                self.numbers[str(_number)] = _number
+                number = Number(artist, album, number_.decode('utf-8', 'replace'))
+                self.numbers[str(number)] = number
             except:
                 cant_reed += 1
-        #if cant_reed:
-        #    print "pass %s file(s)" % cant_reed
+
+        m4a = [number[:-3] for number in self.numbers.keys() if number.endswith('m4a')]
+        for number in m4a:
+            try:
+                del(self.numbers[number + 'mp3'])
+            except KeyError:
+                pass
 
     def __str__(self):
         return unicode(self).encode('utf-8')
@@ -88,7 +65,7 @@ class Album:
         return self.name
 
 
-class Artist:
+class Artist(object):
     def __init__(self, artist, lib_path=MEDIA_ROOT):
         self.path = os.path.join(lib_path, artist)
         self.name = artist
@@ -109,13 +86,14 @@ class Artist:
     def __unicode__(self):
         return self.name
 
-class JukeBox:
+
+class JukeBox(object):
     def __init__(self):
         self.media_root = MEDIA_ROOT
         #self.process = Process()
         self.artists = {}
         self.get_artists()
-                
+
     def growlnotify(self):
         cmd = ('echo "afplay - now playing %s" | growlnotify' % self)
 
@@ -127,13 +105,16 @@ class JukeBox:
             _artist = Artist(artist.decode('utf-8', 'replace'))
             self.artists[str(_artist)] = _artist
 
-    def show_artists(self):
+    def show_artists(self, *args, **kwargs):
+        threshold = 80
+        if kwargs.get('one'):
+            threshold = 1
         line = ''
-        for artist in self.artists.keys():
+        for artist in sorted(self.artists.keys()):
             if not line == '':
                 line += '\t'
             line += str(artist)
-            if len(line) > 80:
+            if len(line) > threshold:
                 print line
                 line = ''
         print line
@@ -150,30 +131,47 @@ class JukeBox:
                 line = ''
         print line
         return 0
-        
-    def play(self, number, volume, stdin=None):        
+
+    def play(self, number, volume, stdin=None):
         if not isinstance(number, Number):
             return 1
-        cmd ='afplay -v %10.2f -q 1 "%s"' % (float(volume)/100,number.path)
+        cmd =u'afplay -v %10.2f -q 1 "%s"' % (float(volume)/100,number.path)
         os.system(cmd)
         return 0
 
 def __main__():
 
     parser = optparse.OptionParser()
+    parser.add_option('-1', '--one', action='store_true', dest='one', default=False, help='one entry per line')
     parser.add_option('-l', '--lists', action='store_true', dest='lists', default=False, help='show artists')
     parser.add_option('-a', '--artist', action='store', dest='artist', default=False, help='choose artist')
     parser.add_option('-d', '--disc', action='store', dest='disc',  default=False, help='choose album')
     parser.add_option('-v', '--volume', action='store', dest='volume', type=int, default=20, help='set volume[1-100]')
     parser.add_option('-q', '--quiet', action='store_true', dest='quiet', default=False, help='work quietly')
+    parser.add_option('-A', '--all', action='store_true', dest='all_song', default=False, help='walk throw all song')
     (options, args) = parser.parse_args(sys.argv)
-    
+
     juke = JukeBox()
 
-    if options.lists:
+    if options.one:
+        juke.show_artists(one=True)
+    elif options.lists:
         juke.show_artists()
+    elif options.all_song:
+        artist = juke.artists[options.artist]
+        for album in artist.albums.values():
+            numbers = sorted(album.numbers.values(), key=lambda number:number.name)
+            if not options.quiet:
+                print artist
+                print '[31m%s[m' % album
+                for number in numbers:
+                    print '[31m%s[m' % number
+            for number in numbers:
+                if not options.quiet:
+                    print 'now playing [31m%s[m' % number
+                juke.play(number, options.volume)
     elif options.artist:
-        if options.disc: 
+        if options.disc:
             artist = juke.artists[options.artist]
             album = artist.albums[options.disc]
             numbers = album.numbers.values()
@@ -193,6 +191,3 @@ def __main__():
         parser.print_help()
 
 __main__()
-
-
-
