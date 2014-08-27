@@ -6,8 +6,8 @@ import signal, os
 
 os.environ['PATH'] = "/usr/bin"
 MEDIA_ROOT = os.path.join(os.environ['HOME'], 'Music/iTunes/iTunes Media/Music/')
-#MEDIA_ROOT = os.path.join(os.environ['HOME'], 'Desktop/music/Music/')
 IGNORE_FILE = ['.DS_Store']
+
 def _listdir(path):
     result = []
     if os.path.isdir(path):
